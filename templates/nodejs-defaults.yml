@@ -1,0 +1,32 @@
+# Template: nodejs-defaults.yml
+# This file is meant to be stored in a remote repo and included by other projects using a raw URL or project include.
+
+.default: &default
+  image: node:20
+  before_script:
+    - npm ci
+
+lint:
+  <<: *default
+  stage: lint
+  script:
+    - npm run lint || echo "lint command not configured"
+
+test:
+  <<: *default
+  stage: test
+  script:
+    - npm test || echo "test command not configured"
+  artifacts:
+    when: always
+    reports:
+      junit: junit.xml
+
+build:
+  <<: *default
+  stage: build
+  script:
+    - npm run build || echo "build command not configured"
+  artifacts:
+    paths:
+      - dist/

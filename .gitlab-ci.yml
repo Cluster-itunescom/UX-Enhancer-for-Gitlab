@@ -1,0 +1,16 @@
+# Example .gitlab-ci.yml which includes a remote template (raw URL) for quick testing
+# WARNING: using raw public URLs has security risks; use a group template repo or protected ref for production.
+
+include:
+  - remote: 'https://gitlab.com/your-group/ci-templates/-/raw/main/templates/nodejs-defaults.yml'
+
+stages:
+  - lint
+  - test
+  - build
+
+# project-specific jobs can still be defined or overridden here
+lint:
+  stage: lint
+  script:
+    - echo "lint step (inherited from template)"
