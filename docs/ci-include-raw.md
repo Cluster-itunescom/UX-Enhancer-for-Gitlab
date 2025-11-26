@@ -92,6 +92,26 @@ Verification checklist
 - Push a `.gitlab-ci.yml` to your test project.
 - Open the pipeline in GitLab and confirm the included jobs show up and run as expected.
 
+Automatic publishing with GitHub Actions
+---------------------------------------
+
+This repository includes a GitHub Actions workflow that automatically publishes `templates/*` to a GitLab project when those files change. The workflow file is `.github/workflows/publish-templates-to-gitlab.yml`.
+
+Required repository secrets
+- `GITLAB_TOKEN` — Personal Access Token with `api` or `write_repository` scope
+- `GITLAB_PROJECT` — target project path (example: `Cluster-itunescom/iTunes.com-Workflows`)
+- `GITLAB_HOST` (optional) — GitLab host (default: `gitlab.com`) — useful for self-hosted instances
+
+How to enable the workflow
+1. Add the above secrets to your GitHub repository (Settings → Secrets → Actions). Do not share tokens publicly.
+2. Push any change to files under `templates/` and the workflow will trigger. It will create or update matching files in the target GitLab project branch `main`.
+
+Workflow behavior and notes
+- The workflow checks out the repo, loops through `templates/*` and calls `scripts/publish_template_to_gitlab.sh` to create/update files in the GitLab repo.
+- The workflow pins to branch `main` when publishing; modify the workflow if you want a different branch or other behaviors.
+- If you prefer to keep the templates private and referenced from GitLab projects, consider using `project:` includes rather than public raw URLs.
+
+
 
 Security reminder
 -----------------

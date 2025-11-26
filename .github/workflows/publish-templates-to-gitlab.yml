@@ -1,0 +1,43 @@
+name: Publish templates to GitLab
+
+on:
+  push:
+    paths:
+      - 'templates/**'
+
+jobs:
+  publish:
+    name: Publish changed templates
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Make publish script executable
+        run: chmod +x ./scripts/publish_template_to_gitlab.sh || true
+
+      - name: Publish templates to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITLAB_HOST: ${{ secrets.GITLAB_HOST }}
+          GITLAB_PROJECT: ${{ secrets.GITLAB_PROJECT }}
+        run: |
+          if [ -z "${GITLAB_PROJECT:-}" ]; then
+            echo "ERROR: secrets.GITLAB_PROJECT must be set to the target project (eg: namespace/project)" >&2
+            exit 1
+          fi
+          if [ -z "${GITLAB_TOKEN:-}" ]; then
+            echo "ERROR: secrets.GITLAB_TOKEN is required (Personal Access Token with api or write_repository scope)" >&2
+            exit 1
+          fi
+
+          for f in templates/*; do
+            echo "Publishing template: $f"
+            ./scripts/publish_template_to_gitlab.sh --project "${GITLAB_PROJECT}" --branch main --src "$f" --dst "${f#./}"
+          done
